@@ -24,27 +24,27 @@ public:
     typedef typename _alloc_traits::const_pointer const_pointer;
     //typedef std::reverse_iterator<iterator> reverse_iterator;
     //typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-	pointer __begin;
-	pointer __end;
-	vector();;
+	vector() : _size(0){
+		__begin = _alloc.allocate(_size);
+	    __end = __begin + _size;
+	}
 	vector(unsigned int size) : _size(size){
-		__begin = allocator_type::allocate(size);
-		std::cout << _ptr << std::endl;
-		std::cout << _ptr + size << std::endl;
+		__begin = _alloc.allocate(_size);
+		__end = __begin + _size;
 	}
 	~vector(){
-		delete []_ptr;
 	}
 	iterator begin() {
-		value_type  *tmp = _ptr;
-        return tmp;
+		return __begin;
     }
 	iterator end() {
-		value_type  *tmp = _ptr + size;
-		return tmp;
+		return __cur;
 	}
     private:
-        pointer _ptr;
+		Alloc      _alloc;
+	    pointer    __begin;
+	    pointer    __end;
+		pointer    __cur;
         size_type _size;
 };
 };
