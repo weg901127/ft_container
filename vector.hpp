@@ -9,9 +9,7 @@
 #include <vector>
 namespace ft{
 template < class T, class Alloc = std::allocator<T> >
-class vector {
-protected:
-	T   *_ptr;
+    class vector {
 public:
     typedef T value_type;
     typedef Alloc allocator_type;
@@ -28,8 +26,8 @@ public:
     //typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 	pointer __begin;
 	pointer __end;
-	vector() {}
-	vector(unsigned int size) : size_type(size){
+	vector();
+	vector(unsigned int size) : _size(size){
 		__begin = allocator_type::allocate(size);
 		std::cout << _ptr << std::endl;
 		std::cout << _ptr + size << std::endl;
@@ -45,7 +43,9 @@ public:
 		value_type  *tmp = _ptr + size;
 		return tmp;
 	}
-
+    private:
+        pointer _ptr;
+        size_type _size;
 };
 };
 #endif //UNTITLED1_VECTOR_HPP
