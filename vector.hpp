@@ -26,7 +26,7 @@ public:
     //typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 	pointer __begin;
 	pointer __end;
-	vector();
+	vector();;
 	vector(unsigned int size) : _size(size){
 		__begin = allocator_type::allocate(size);
 		std::cout << _ptr << std::endl;
