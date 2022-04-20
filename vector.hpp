@@ -11,6 +11,8 @@ namespace ft{
 template < class T, class Alloc = std::allocator<T> >
 class vector {
 protected:
+	T   *_ptr;
+public:
     typedef T value_type;
     typedef Alloc allocator_type;
     typedef typename allocator_type::reference reference;
@@ -22,16 +24,28 @@ protected:
     typedef typename _alloc_traits::difference_type difference_type;
     typedef typename _alloc_traits::pointer pointer;
     typedef typename _alloc_traits::const_pointer const_pointer;
-    typedef std::reverse_iterator<iterator> reverse_iterator;
-    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-public:
-    iterator begin() {
-        return NULL;
+    //typedef std::reverse_iterator<iterator> reverse_iterator;
+    //typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+	pointer __begin;
+	pointer __end;
+	vector() {}
+	vector(unsigned int size) : size_type(size){
+		__begin = allocator_type::allocate(size);
+		std::cout << _ptr << std::endl;
+		std::cout << _ptr + size << std::endl;
+	}
+	~vector(){
+		delete []_ptr;
+	}
+	iterator begin() {
+		value_type  *tmp = _ptr;
+        return tmp;
     }
+	iterator end() {
+		value_type  *tmp = _ptr + size;
+		return tmp;
+	}
 
-    const_iterator begin() const {
-        return NULL;
-    }
 };
 };
 #endif //UNTITLED1_VECTOR_HPP
