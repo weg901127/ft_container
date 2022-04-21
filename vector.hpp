@@ -27,10 +27,12 @@ public:
 	vector() : _size(0){
 		__begin = _alloc.allocate(_size);
 	    __end = __begin + _size;
+		__cur = __end;
 	}
 	vector(unsigned int size) : _size(size){
 		__begin = _alloc.allocate(_size);
 		__end = __begin + _size;
+		__cur = __end;
 	}
 	~vector(){
 	}
@@ -39,6 +41,12 @@ public:
     }
 	iterator end() {
 		return __cur;
+	}
+	size_type size() {
+		return static_cast<size_type>(__cur - __begin);
+	}
+	size_type capacity() {
+		return static_cast<size_type>(__end - __begin);
 	}
     private:
 		Alloc      _alloc;
