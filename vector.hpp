@@ -24,36 +24,62 @@ public:
     typedef typename _alloc_traits::const_pointer const_pointer;
     //typedef std::reverse_iterator<iterator> reverse_iterator;
     //typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-	vector() : _size(0){
-		__begin = _alloc.allocate(_size);
-	    __end = __begin + _size;
-		__cur = __end;
-	}
-	vector(unsigned int size) : _size(size){
-		__begin = _alloc.allocate(_size);
-		__end = __begin + _size;
-		__cur = __end;
-	}
-	~vector(){
-	}
-	iterator begin() {
-		return __begin;
+	vector(const allocator_type& alloc = allocator_type()) : _begin(NULL), _end(NULL), _cur(NULL), _size(0){}
+
+    vector(size_type n, const value_type& val = value_type()) : _size(n){
+        _begin = _alloc.allocate(_size);
+        _end = _begin;
+        while (_end != _begin + _size)
+            _alloc.construct(_end++, val);
+        _cur = _end;
     }
+
+	~vector(){
+        while (_cur-- != _begin)
+            _alloc.destroy(_cur);
+        _alloc.deallocate(_begin, size());
+	}
+
+	iterator begin() {
+		return _begin;
+    }
+
 	iterator end() {
-		return __cur;
+		return _cur;
 	}
+
 	size_type size() {
-		return static_cast<size_type>(__cur - __begin);
+		return static_cast<size_type>(_cur - _begin);
 	}
+
+    size_type max_size() const {
+        return _alloc.max_size();
+    }
+
 	size_type capacity() {
-		return static_cast<size_type>(__end - __begin);
+		return static_cast<size_type>(_end - _begin);
 	}
+
+    void push_back (const value_type& val) {
+        if (_begin == NULL) {
+            _begin = _alloc.allocate(1);
+            _alloc.construct(_begin, val);
+            _end = _begin;
+            _cur = _end;
+        }
+        /*
+        else {
+
+        }
+         */
+    }
+
     private:
-		Alloc      _alloc;
-	    pointer    __begin;
-	    pointer    __end;
-		pointer    __cur;
-        size_type _size;
+		allocator_type  _alloc;
+	    pointer         _begin;
+	    pointer         _end;
+		pointer         _cur;
+        size_type       _size;
 };
 };
 #endif //UNTITLED1_VECTOR_HPP
