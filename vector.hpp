@@ -63,15 +63,21 @@ public:
     void push_back (const value_type& val) {
         if (_begin == NULL) {
             _begin = _alloc.allocate(1);
-            _alloc.construct(_begin, val);
-            _end = _begin;
-            _cur = _end;
+            _end = _begin + 1;
+            _cur = _begin;
         }
-        /*
-        else {
-
+        else if (size() == capacity()) {
+            pointer tmp_p = _alloc.allocate(size() * 2);
+            std::copy(_begin, _end, tmp_p);
+            while (_cur-- != _begin)
+                _alloc.destroy(_cur);
+            _alloc.deallocate(_begin, size());
+            _cur = tmp_p + (_end - _begin);
+            _begin = tmp_p;
+            _end = _begin + (size() * 2);
         }
-         */
+        _alloc.construct(_cur, val);
+        _cur++;
     }
 
     private:

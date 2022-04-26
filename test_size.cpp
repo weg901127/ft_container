@@ -65,15 +65,34 @@ TEST(vector, iter_test_no_args) {
         }, ".*");
 }
 
-TEST(vector, push_back) {
+TEST(vector, push_back_0) {
     ft::vector<int> a;
-    std::vector<int> b(3);
-    for (int i = 0; i < 2; i++) {
-        b.push_back(i);
-    }
-    std::cout << a.size() << " " << b.size() << std::endl;
-    std::cout << a.capacity() << " " << b.capacity() << std::endl;
-    //EXPECT_EQ(a.size(), b.size());
-    //EXPECT_EQ(a.capacity(), b.capacity());
-    //EXPECT_EQ(a.max_size(), b.max_size());
+    std::vector<int> b;
+    a.push_back(9176);
+    a.push_back(1);
+    b.push_back(9176);
+    b.push_back(1);
+    std::cout << a.size() << " " << a.capacity() << std::endl;
+    std::cout << b.size() << " " << b.capacity() << std::endl;
+    EXPECT_EQ(a.size(), b.size());
+    EXPECT_EQ(a.capacity(), b.capacity());
+    ft::vector<int>::iterator c = a.begin();
+    std::vector<int>::iterator d = b.begin();
+    EXPECT_EQ(*c++, *d++);
+    EXPECT_EQ(*c, *d);
+}
+
+TEST(vector, push_back_1) {
+    ft::vector<int> a(12322123);
+    std::vector<int> b(12322123);
+    a.push_back(1);
+    b.push_back(1);
+    std::cout << a.size() << " " << a.capacity() << std::endl;
+    std::cout << b.size() << " " << b.capacity() << std::endl;
+    EXPECT_EQ(a.size(), b.size());
+    EXPECT_EQ(a.capacity(), b.capacity());
+    ft::vector<int>::iterator c = a.begin();
+    std::vector<int>::iterator d = b.begin();
+    EXPECT_EQ(*c++, *d++);
+    EXPECT_EQ(*c, *d);
 }
