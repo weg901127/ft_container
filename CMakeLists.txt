@@ -3,4 +3,4 @@ project(untitled1)
 
 set(CMAKE_CXX_STANDARD 98)
 
-add_executable(untitled1 test_size.cpp vector.hpp Iterater.hpp)
+add_executable(untitled1 test_size.cpp vector.hpp iterater.hpp)
