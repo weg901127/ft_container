@@ -8,19 +8,26 @@
 #include <memory>
 #include <stdexcept>
 #include "iterater.hpp"
-//#include <vector>
+#include <vector>
 namespace ft{
 template<typename T>
-class v_iter : ft::iterator<ft::random_access_iterator_tag, T> {
+class v_iter {
 public:
-    //typedef typename ft::iterator<ft::random_access_iterator_tag, T>::iterator_category     iterator_category;
-    //typedef typename ft::iterator<ft::random_access_iterator_tag, T>::value_type            value_type;
-    //typedef typename ft::iterator<ft::random_access_iterator_tag, T>::difference_type       difference_type;
-    typedef T*                                                                              pointer;
-    typedef T&                                                                              reference;
+    typedef T                                                                               iterator_type;
+    typedef typename ft::iterator_traits<iterator_type>::iterator_category                  iterator_category;
+    typedef typename ft::iterator_traits<iterator_type>::value_type                         value_type;
+    typedef typename ft::iterator_traits<iterator_type>::difference_type                    difference_type;
+    typedef typename ft::iterator_traits<iterator_type>::pointer                            pointer;
+    typedef typename ft::iterator_traits<iterator_type>::reference                          reference;
 
-    v_iter(void):_elem(){}
-    v_iter(pointer elem):_elem(elem){}
+    v_iter(void) : _elem(){}
+    v_iter(iterator_type __x) : _elem(__x) {}
+    template <class It>
+    v_iter(const v_iter<It> & elem, typename enable_if<is_convertible<It, iterator_type>::value>::type* = 0) : _elem(elem.base()) {}
+
+    iterator_type base() const {
+        return _elem;
+    }
     v_iter& operator++() {
         _elem++;
         return (*this);
@@ -37,7 +44,7 @@ public:
 //    operator v_iter<const T> () const
 //    { return (v_iter<const T>(this->_elem)); }
 private:
-    pointer _elem;
+    iterator_type _elem;
 };
 template < class T, class Alloc = std::allocator<T> >
     class vector {
@@ -48,13 +55,13 @@ public:
     typedef typename allocator_type::const_reference        const_reference;
     typedef typename std::allocator_traits<allocator_type>  _alloc_traits;
     typedef typename _alloc_traits::size_type               size_type;
-    //typedef typename _alloc_traits::difference_type         difference_type;
+    typedef typename _alloc_traits::difference_type         difference_type;
     typedef typename _alloc_traits::pointer                 pointer;
-    //typedef typename _alloc_traits::const_pointer           const_pointer;
-    typedef ft::v_iter<value_type>                          iterator;
-    typedef ft::v_iter<value_type>                          const_iterator;
-    //typedef std::reverse_iterator<iterator>                 reverse_iterator;
-    //typedef std::reverse_iterator<const_iterator>           const_reverse_iterator;
+    typedef typename _alloc_traits::const_pointer           const_pointer;
+    typedef ft::v_iter<pointer>                             iterator;
+    typedef ft::v_iter<const_pointer>                       const_iterator;
+    typedef ft::reverse_iterator<iterator>                 reverse_iterator;
+    typedef ft::reverse_iterator<const_iterator>           const_reverse_iterator;
 
     vector(const allocator_type& alloc = allocator_type()) : _begin(NULL), _end(NULL), _cur(NULL) {}
     vector(size_type n, const value_type& val = value_type()) {
@@ -91,15 +98,31 @@ public:
         return _begin[n];
     }
 
-	iterator begin() {
-		return iterator(_begin);
+	v_iter <pointer> begin() {
+		return iterator(static_cast<const v_iter<int *>>(_begin));
     }
 
 	iterator end() {
 		return iterator(_cur);
 	}
 
-	size_type size() {
+    const_iterator begin() const{
+        return iterator(_begin);
+    }
+
+    const_iterator end() const{
+        return iterator(_cur);
+    }
+
+    reverse_iterator rbegin() {
+        return reverse_iterator(end());
+    }
+
+    const_reverse_iterator rbegin() const{
+        return const_reverse_iterator(end());
+    }
+
+	size_type size() const {
 		return static_cast<size_type>(_cur - _begin);
 	}
 
@@ -139,7 +162,7 @@ public:
         return _alloc.max_size();
     }
 
-	size_type capacity() {
+	size_type capacity() const {
 		return static_cast<size_type>(_end - _begin);
 	}
 
@@ -173,14 +196,14 @@ public:
     }
 
     reference at (size_type n) {
-        if (n > size())
-            throw std::out_of_range("out of range!\n");
+        if (n >= size())
+            throw std::out_of_range("vector");
         return _begin[n];
     }
 
     const_reference at (size_type n) const{
-        if (n > size())
-            throw std::out_of_range("out of range!\n");
+        if (n >= size())
+            throw std::out_of_range("vector");
         return _begin[n];
     }
 
@@ -222,6 +245,15 @@ public:
             _alloc.construct(_end++, val);
         _cur = _end;
     }
+
+    void swap (vector<value_type, Alloc> & x, vector<value_type, Alloc> & y) {
+        x.swap(y);
+    }
+
+    friend bool    operator==(vector<value_type, Alloc> & x, vector<value_type, Alloc> & y){
+        const typename vector<value_type, Alloc>::size_type __sz = x.size();
+        return __sz == y.size() && x.begin() == y.begin();
+    }
 /*
     iterator insert (iterator position, const value_type& val) {
 
@@ -236,6 +268,24 @@ public:
 
     }
 */
+    void    swap(vector<value_type, Alloc> & x) {
+        pointer         tmp;
+        allocator_type  tmp_alloc;
+
+        tmp = this->_begin;
+        this->_begin = x._begin;
+        x._begin = tmp;
+        tmp = this->_end;
+        this->_end = x._end;
+        x._end = tmp;
+        tmp = this->_cur;
+        this->_cur = x._cur;
+        x._cur = tmp;
+        tmp_alloc = this->_alloc;
+        this->_alloc = x._alloc;
+        x._alloc = tmp_alloc;
+    }
+
     private:
 		allocator_type  _alloc;
 	    pointer         _begin;

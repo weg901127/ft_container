@@ -133,3 +133,12 @@ TEST(vector, pop_back_0) {
     std::cout << b.size() << " " << b.capacity() << std::endl;
     std::cout << a.max_size() << " " << b.max_size() << std::endl;
 }
+
+TEST(vector, reverse_it) {
+    ft::vector<int> a(100);
+    std::vector<int> b(100);
+    ft::vector<int>::const_iterator ct = a.begin();
+    std::vector<int>::const_iterator ct2 = b.begin();
+    (void)ct;
+    (void)ct2;
+}
