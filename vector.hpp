@@ -20,7 +20,7 @@ public:
     typedef typename ft::iterator_traits<iterator_type>::pointer                            pointer;
     typedef typename ft::iterator_traits<iterator_type>::reference                          reference;
 
-    //v_iter(void){}
+    v_iter(void){}
     v_iter(iterator_type __x) : _elem(__x) {}
     template <class It>
     v_iter(const v_iter<It> & elem, typename enable_if<is_convertible<It, iterator_type>::value>::type* = 0)
@@ -140,6 +140,14 @@ public:
             _alloc.construct(_end++, val);
         _cur = _end;
     }
+    vector(size_type n, const value_type& val, const allocator_type& alloc) : _begin(NULL), _end(NULL), _cur(NULL){
+        _begin = _alloc.allocate(n);
+        _end = _begin;
+        while (_end != _begin + n)
+            _alloc.construct(_end++, val);
+        _cur = _end;
+
+    }
 	~vector(){
         while (_cur-- != _begin)
             _alloc.destroy(_cur);
@@ -167,8 +175,8 @@ public:
         return _begin[n];
     }
 
-	v_iter <pointer> begin() {
-		return iterator(static_cast<const v_iter<int *>>(_begin));
+	iterator begin() {
+		return iterator(_begin);
     }
 
 	iterator end() {
@@ -294,12 +302,18 @@ public:
 
     template <class InputIterator>
     void assign (InputIterator first, InputIterator last) {
+        /*
         if (_begin != NULL) {
             while (_cur-- != _begin)
                 _alloc.destroy(_cur);
             _alloc.deallocate(_begin, size());
         }
         std::copy(first, last, _begin);
+         */
+        _alloc_traits::deallocate(this->_alloc, this->begin(), capacity());
+        clear();
+        difference_type __ns = distance(first, last);
+        const   size_t __n = static_cast<size_type>(__ns);
     }
 
     void assign (size_type n, const value_type& val) {
@@ -323,20 +337,40 @@ public:
         const typename vector<value_type, Alloc>::size_type __sz = x.size();
         return __sz == y.size() && x.begin() == y.begin();
     }
-/*
-    iterator insert (iterator position, const value_type& val) {
 
+    iterator insert (const_iterator position, const value_type& val) {
+        /*
+        iterator __r;
+        if (size() < capacity())
+        {
+            const_iterator __old_end = end();
+            ++__size_;
+            _VSTD::copy_backward(__position, __old_end, end());
+            __r = __const_iterator_cast(__position);
+        }
+        else
+        {
+            vector __v(__alloc());
+            __v.reserve(__recommend(__size_ + 1));
+            __v.__size_ = __size_ + 1;
+            __r = _VSTD::copy(cbegin(), __position, __v.begin());
+            _VSTD::copy_backward(__position, cend(), __v.end());
+            swap(__v);
+        }
+        *__r = __x;
+        return __r;
+        */
     }
 
-    void insert (iterator position, size_type n, const value_type& val) {
+    void insert (const_iterator position, size_type n, const value_type& val) {
 
     }
 
     template <class InputIterator>
-    void insert (iterator position, InputIterator first, InputIterator last) {
+    void insert (const_iterator position, InputIterator first, InputIterator last) {
 
     }
-*/
+
     void    swap(vector<value_type, Alloc> & x) {
         pointer         tmp;
         allocator_type  tmp_alloc;
@@ -355,6 +389,49 @@ public:
         x._alloc = tmp_alloc;
     }
 
+    private:
+        void clear() {_end = 0;}
+        void __vdeallocate() {
+            if (this->__begin_ != NULL)
+            {
+                clear();
+                _alloc_traits::deallocate(this->_alloc, this->begin(), capacity());
+                this->__begin_ = this->__end_ = this->__end_cap() = NULL;
+            }
+        }
+
+        void __vallocate(size_type __n)
+        {
+            if (__n > max_size())
+                this->__throw_length_error();
+            this->__begin_ = this->__end_ = _alloc_traits::allocate(this->_alloc, __n);
+            this->__end_cap() = this->__begin_ + __n;
+        }
+
+        //todo 분리 예정
+        template <class _InputIter>
+        typename iterator_traits<_InputIter>::difference_type
+        __distance(_InputIter __first, _InputIter __last, input_iterator_tag)
+        {
+            typename iterator_traits<_InputIter>::difference_type __r(0);
+            for (; __first != __last; ++__first)
+                ++__r;
+            return __r;
+        }
+
+        template <class _RandIter>
+        typename iterator_traits<_RandIter>::difference_type
+        __distance(_RandIter __first, _RandIter __last, random_access_iterator_tag)
+        {
+            return __last - __first;
+        }
+
+        template <class _InputIter>
+        typename iterator_traits<_InputIter>::difference_type
+        distance(_InputIter __first, _InputIter __last)
+        {
+            return __distance(__first, __last, typename iterator_traits<_InputIter>::iterator_category());
+        }
     private:
 		allocator_type  _alloc;
 	    pointer         _begin;
