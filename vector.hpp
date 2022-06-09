@@ -8,7 +8,7 @@
 #include <memory>
 #include <stdexcept>
 #include "iterater.hpp"
-#include <vector>
+//#include <vector>
 namespace ft{
 template<typename T>
 class v_iter {
@@ -20,10 +20,15 @@ public:
     typedef typename ft::iterator_traits<iterator_type>::pointer                            pointer;
     typedef typename ft::iterator_traits<iterator_type>::reference                          reference;
 
-    v_iter(void) : _elem(){}
+    //v_iter(void){}
     v_iter(iterator_type __x) : _elem(__x) {}
     template <class It>
-    v_iter(const v_iter<It> & elem, typename enable_if<is_convertible<It, iterator_type>::value>::type* = 0) : _elem(elem.base()) {}
+    v_iter(const v_iter<It> & elem, typename enable_if<is_convertible<It, iterator_type>::value>::type* = 0)
+        : _elem(elem.base()) {}
+    v_iter(const v_iter& __x) : _elem(__x.base()) {}
+
+    reference   operator*() const {return *_elem;}
+    pointer     operator->() const {return &_elem;}
 
     iterator_type base() const {
         return _elem;
@@ -37,15 +42,79 @@ public:
         operator++();
         return tmp;
     }
-
-    reference operator*() const {
-        return (*_elem);
+    v_iter& operator--() {
+        _elem--;
+        return (*this);
+    }
+    v_iter  operator--(int) {
+        v_iter tmp(*this);
+        operator--();
+        return tmp;
+    }
+    v_iter  operator+ (difference_type n) const {
+        v_iter __w(*this); __w += n; return __w;
+    }
+    v_iter& operator+=(difference_type n) {
+        _elem += n; return *this;
+    }
+    v_iter operator- (difference_type n) const {
+        return *this + (-n);
+    }
+    v_iter& operator-=(difference_type n) {
+        *this += -n; return *this;
+    }
+    reference operator[](difference_type n) const {
+        return _elem[n];
     }
 //    operator v_iter<const T> () const
 //    { return (v_iter<const T>(this->_elem)); }
 private:
     iterator_type _elem;
 };
+
+template <class _Iter1>
+bool operator==(const v_iter<_Iter1>& __x, const v_iter<_Iter1>& __y) {return __x.base() == __y.base();}
+
+template <class _Iter1, class _Iter2>
+bool operator==(const v_iter<_Iter1>& __x, const v_iter<_Iter2>& __y) {return __x.base() == __y.base();}
+
+template <class _Iter1>
+bool operator<(const v_iter<_Iter1>& __x, const v_iter<_Iter1>& __y) {return __x.base() < __y.base();}
+
+template <class _Iter1, class _Iter2>
+bool operator<(const v_iter<_Iter1>& __x, const v_iter<_Iter2>& __y) {return __x.base() < __y.base();}
+
+template <class _Iter1>
+bool operator!=(const v_iter<_Iter1>& __x, const v_iter<_Iter1>& __y) {return !(__x == __y);}
+
+template <class _Iter1, class _Iter2>
+bool operator!=(const v_iter<_Iter1>& __x, const v_iter<_Iter2>& __y) {return !(__x == __y);}
+
+template <class _Iter1>
+bool operator>(const v_iter<_Iter1>& __x, const v_iter<_Iter1>& __y) {return __y < __x;}
+
+template <class _Iter1, class _Iter2>
+bool operator>(const v_iter<_Iter1>& __x, const v_iter<_Iter2>& __y) {return __y < __x;}
+
+template <class _Iter1>
+bool operator>=(const v_iter<_Iter1>& __x, const v_iter<_Iter1>& __y) {return !(__x < __y);}
+
+template <class _Iter1, class _Iter2>
+bool operator>=(const v_iter<_Iter1>& __x, const v_iter<_Iter2>& __y) {return !(__x < __y);}
+
+template <class _Iter1>
+bool operator<=(const v_iter<_Iter1>& __x, const v_iter<_Iter1>& __y) {return !(__y < __x);}
+
+template <class _Iter1, class _Iter2>
+bool operator<=(const v_iter<_Iter1>& __x, const v_iter<_Iter2>& __y) {return !(__y < __x);}
+
+template <class _Iter1, class _Iter2>
+typename v_iter<_Iter1>::difference_type
+operator-(const v_iter<_Iter1>& __x, const v_iter<_Iter2>& __y) {return __x.base() - __y.base();}
+
+template <class _Iter1>
+v_iter<_Iter1> operator+(typename v_iter<_Iter1>::difference_type __n, v_iter<_Iter1> __x) {__x += __n;return __x;}
+
 template < class T, class Alloc = std::allocator<T> >
     class vector {
 public:
