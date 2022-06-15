@@ -310,10 +310,12 @@ public:
         }
         std::copy(first, last, _begin);
          */
+        /*
         _alloc_traits::deallocate(this->_alloc, this->begin(), capacity());
         clear();
         difference_type __ns = distance(first, last);
         const   size_t __n = static_cast<size_type>(__ns);
+    */
     }
 
     void assign (size_type n, const value_type& val) {
